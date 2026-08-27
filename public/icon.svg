@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="numaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A855F7" />
+      <stop offset="50%" stop-color="#EC4899" />
+      <stop offset="100%" stop-color="#14B8A6" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Circle -->
+  <rect width="512" height="512" rx="128" fill="#0F172A" />
+  <circle cx="256" cy="256" r="210" fill="url(#numaGrad)" filter="url(#glow)" />
+
+  <!-- White Lotus Petals & Stylized N Emblem -->
+  <g fill="#FFFFFF">
+    <!-- Center Crescent Lotus Blossom -->
+    <path d="M256,110 C290,170 330,220 370,270 C340,310 290,340 256,340 C222,340 172,310 142,270 C182,220 222,170 256,110 Z" opacity="0.95" />
+    <!-- Outer Floating Side Petals -->
+    <path d="M256,160 C210,190 140,240 110,310 C160,330 220,320 256,280 Z" opacity="0.85" />
+    <path d="M256,160 C302,190 372,240 402,310 C352,330 292,320 256,280 Z" opacity="0.85" />
+    <!-- Center Radiant Core -->
+    <circle cx="256" cy="256" r="32" fill="#0F172A" />
+    <path d="M244,236 L256,220 L268,236 L256,280 Z" fill="#EC4899" />
+  </g>
+</svg>
