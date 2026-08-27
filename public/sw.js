@@ -1,4 +1,4 @@
-const CACHE_NAME = 'numa-pwa-v3';
+const CACHE_NAME = 'numa-pwa-v4';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -19,9 +19,14 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Network-First strategy to ensure phones always receive fresh JS & HTML builds
+// Network-First strategy to ensure phones always receive fresh JS, HTML, and Icon builds
 self.addEventListener('fetch', (event) => {
-  if (event.request.mode === 'navigate' || event.request.destination === 'document' || event.request.destination === 'script') {
+  if (
+    event.request.mode === 'navigate' ||
+    event.request.destination === 'document' ||
+    event.request.destination === 'script' ||
+    event.request.destination === 'image'
+  ) {
     event.respondWith(
       fetch(event.request)
         .then((networkResponse) => {

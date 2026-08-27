@@ -1,26 +1,26 @@
 {
-  "id": "/",
+  "id": "/?v=2.0",
   "short_name": "NUMA",
   "name": "NUMA: PCOS Health Companion",
   "description": "Personalized PCOS health companion turning everyday records into an organized health story.",
   "categories": ["health", "medical", "lifestyle"],
   "icons": [
     {
-      "src": "/pwa-192.png",
+      "src": "/pwa-192.png?v=2.0",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "/pwa-512.png",
+      "src": "/pwa-512.png?v=2.0",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
-  "start_url": "/",
+  "start_url": "/?v=2.0",
   "background_color": "#0F172A",
-  "theme_color": "#D946EF",
+  "theme_color": "#A855F7",
   "display": "standalone",
   "orientation": "portrait"
 }
