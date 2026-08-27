@@ -421,14 +421,24 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* Responsive Visibility Helpers */
-@media (min-width: 1024px) {
+@media (min-width: 769px) {
   .hide-desktop {
     display: none !important;
   }
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 768px) {
   .hide-mobile {
     display: none !important;
+  }
+  .main-content {
+    padding-bottom: 85px !important;
+  }
+  .content-body {
+    padding: 0.85rem !important;
+  }
+  .numa-card {
+    padding: 1.15rem !important;
+    border-radius: var(--radius-md) !important;
   }
 }
