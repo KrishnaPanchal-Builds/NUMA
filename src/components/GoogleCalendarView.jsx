@@ -86,7 +86,8 @@ export default function GoogleCalendarView({ events, cycles, onAddEvent, onUpdat
   const threeMonths = [getMonthMetadata(-2), getMonthMetadata(-1), getMonthMetadata(0)];
 
   const getEventsForDate = (dateStr) => {
-    return events.filter((e) => e.date === dateStr || (!e.date && dateStr === '2026-08-12'));
+    const safeEvents = Array.isArray(events) ? events : [];
+    return safeEvents.filter((e) => e && (e.date === dateStr || (!e.date && dateStr === '2026-08-12')));
   };
 
   const selectedDateEvents = getEventsForDate(selectedDate);

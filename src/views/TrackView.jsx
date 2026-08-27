@@ -163,10 +163,15 @@ export default function TrackView({
       {/* SUB-TAB 2: GOOGLE CALENDAR VIEW */}
       {activeSubTab === 'googleCalendar' && (
         <GoogleCalendarView
-          cycles={cycles}
-          timeline={timeline}
-          appointments={appointments}
+          events={timeline || []}
+          timeline={timeline || []}
+          cycles={cycles || []}
+          appointments={appointments || []}
+          onAddEvent={onAddTimelineEntry}
+          onUpdateEvent={onUpdateTimelineEntry}
           onLogPeriod={onLogPeriod}
+          onDeletePeriodLog={onDeletePeriodLog}
+          onDeleteTimelineEntry={onDeleteTimelineEntry}
         />
       )}
 
