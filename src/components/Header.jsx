@@ -140,7 +140,11 @@ export default function Header({
           </div>
 
           {/* Mobile Compact Right Bar Actions */}
-          <div className="mobile-actions hide-desktop">
+          <div className="mobile-actions hide-desktop" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <button onClick={toggleTheme} className="btn btn-outline btn-icon" style={{ width: '34px', height: '34px' }} title="Toggle Light/Dark Mode">
+              {theme === 'light' ? <Moon size={15} /> : <Sun size={15} color="#FBBF24" />}
+            </button>
+
             <button onClick={onOpenQuickCheckIn} className="btn btn-primary" style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', gap: '0.25rem', borderRadius: 'var(--radius-full)' }}>
               <Plus size={14} /> Log
             </button>
