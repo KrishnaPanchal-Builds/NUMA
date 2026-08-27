@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>NUMA - PCOS Health Companion</title>
     <meta name="description" content="A personalized PCOS health companion that turns everyday health records into one organized, understandable health story." />
     <meta name="theme-color" content="#D946EF" />
@@ -19,7 +19,9 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(function(err) {
+          navigator.serviceWorker.register('/sw.js').then(function(reg) {
+            reg.update();
+          }).catch(function(err) {
             console.log('ServiceWorker registration failed: ', err);
           });
         });
