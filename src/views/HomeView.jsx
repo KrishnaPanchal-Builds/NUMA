@@ -13,17 +13,19 @@ export default function HomeView({
   onOpenHealthData,
   onOpenBreathing
 }) {
+  const safeProfile = profile || {};
+
   // DYNAMIC CYCLE ENGINE: Calculate actual cycle day, phase, and next period from user's logged LMP
   const getCycleCalculation = () => {
-    const lmpStr = profile.lmpDate || '2026-08-01';
+    const lmpStr = safeProfile.lmpDate || '2026-08-01';
     const lmpDate = new Date(lmpStr);
     const today = new Date();
     
     // Elapsed Days
     const diffTime = today - lmpDate;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const targetCycleDays = profile.exactCycleDays || 34;
-    const periodDuration = profile.exactPeriodDays || 5;
+    const targetCycleDays = safeProfile.exactCycleDays || 34;
+    const periodDuration = safeProfile.exactPeriodDays || 5;
 
     let currentDay = (diffDays >= 0) ? (diffDays % targetCycleDays) + 1 : 1;
     
@@ -59,7 +61,8 @@ export default function HomeView({
   };
 
   const cycleCalc = getCycleCalculation();
-  const todayTimeline = timeline.filter((t) => !t.date || t.date === new Date().toISOString().split('T')[0]);
+  const safeTimeline = Array.isArray(timeline) ? timeline : [];
+  const todayTimeline = safeTimeline.filter((t) => !t.date || t.date === new Date().toISOString().split('T')[0]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.65rem' }}>
@@ -84,7 +87,7 @@ export default function HomeView({
             </div>
 
             <h2 style={{ fontSize: '1.85rem', fontWeight: '800', marginBottom: '0.45rem', lineHeight: '1.2' }}>
-              Welcome to your rhythm, <span className="gradient-text">{profile.name || 'Krishna'}</span> 🌸
+              Welcome to your rhythm, <span className="gradient-text">{safeProfile.name || 'Krishna'}</span> 🌸
             </h2>
 
             <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', maxWidth: '780px', lineHeight: '1.6' }}>
@@ -110,13 +113,13 @@ export default function HomeView({
         {/* Dynamic Living Cycle Progress Bar */}
         <div style={{ marginTop: '1.75rem', background: 'var(--bg-input)', padding: '1.15rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.825rem', fontWeight: '700', marginBottom: '0.6rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <span style={{ color: 'var(--secondary)' }}>🩸 Period (Days 1–{profile.exactPeriodDays || 5})</span>
+            <span style={{ color: 'var(--secondary)' }}>🩸 Period (Days 1–{safeProfile.exactPeriodDays || 5})</span>
             <span style={{ color: 'var(--primary)', fontWeight: '800' }}>{cycleCalc.phase} • Day {cycleCalc.currentDay}</span>
             <span style={{ color: 'var(--accent-mint)' }}>🌸 Next Period ~ {cycleCalc.nextPeriodStr}</span>
           </div>
 
           <div style={{ height: '12px', width: '100%', background: 'rgba(0,0,0,0.06)', borderRadius: 'var(--radius-full)', overflow: 'hidden', display: 'flex', padding: '2px' }}>
-            <div style={{ width: `${((profile.exactPeriodDays || 5) / cycleCalc.targetCycleDays) * 100}%`, background: 'var(--secondary)', borderRadius: 'var(--radius-full)' }} title="Menstrual Phase" />
+            <div style={{ width: `${((safeProfile.exactPeriodDays || 5) / cycleCalc.targetCycleDays) * 100}%`, background: 'var(--secondary)', borderRadius: 'var(--radius-full)' }} title="Menstrual Phase" />
             <div style={{ width: `${((cycleCalc.currentDay) / cycleCalc.targetCycleDays) * 100}%`, background: 'linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%)', borderRadius: 'var(--radius-full)' }} title="Elapsed Days" />
             <div style={{ flex: 1, background: 'var(--accent-mint-light)', borderRadius: 'var(--radius-full)' }} title="Remaining Days" />
           </div>
@@ -223,7 +226,7 @@ export default function HomeView({
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {todayTimeline.map((item) => (
-              <div key={item.id} style={{ padding: '0.85rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div key={item.id || Math.random()} style={{ padding: '0.85rem 1rem', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <span style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--primary)' }}>{item.time || '10:00 AM'}</span>
                   <div>

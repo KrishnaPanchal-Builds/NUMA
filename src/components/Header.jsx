@@ -19,10 +19,11 @@ export default function Header({
   profile
 }) {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const userInitials = getUserInitials(profile.name);
+  const safeProfile = profile || {};
+  const userInitials = getUserInitials(safeProfile.name || 'User');
 
   // Modular Active Tracking Feature Preferences
-  const activeTracking = profile.activeTracking || {
+  const activeTracking = safeProfile.activeTracking || {
     track: true,
     sleep: true,
     mental: true,
@@ -88,11 +89,11 @@ export default function Header({
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <h1 style={{ fontSize: '1.05rem', fontWeight: '800', lineHeight: 1.1 }}>NUMA</h1>
                 <span className="badge badge-primary" style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem' }}>
-                  Day {profile.currentCycleDay || 14}
+                  Day {safeProfile.currentCycleDay || 14}
                 </span>
               </div>
               <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', margin: 0 }}>
-                {profile.currentPhase || 'Follicular Phase'}
+                {safeProfile.currentPhase || 'Follicular Phase'}
               </p>
             </div>
           </div>
@@ -262,7 +263,7 @@ export default function Header({
                   {userInitials}
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: '800' }}>{profile.name || 'Krishna'}</h3>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '800' }}>{safeProfile.name || 'Krishna'}</h3>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>NUMA Health Hub Navigation</p>
                 </div>
               </div>
