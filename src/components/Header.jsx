@@ -60,10 +60,37 @@ export default function Header({
     { id: 'ai', label: 'NUMA AI', icon: Bot },
   ];
 
+  // DYNAMIC CYCLE ENGINE: Calculate actual cycle day & phase from user's logged LMP
+  const getCycleCalculation = () => {
+    const lmpStr = safeProfile.lmpDate || '2026-08-01';
+    const lmpDate = new Date(lmpStr);
+    const today = new Date();
+    
+    // Elapsed Days
+    const diffTime = today - lmpDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const targetCycleDays = safeProfile.exactCycleDays || 34;
+    const periodDuration = safeProfile.exactPeriodDays || 5;
+
+    let currentDay = (diffDays >= 0) ? (diffDays % targetCycleDays) + 1 : 1;
+    
+    let phase = 'Follicular Phase';
+    if (currentDay <= periodDuration) {
+      phase = 'Menstrual Phase';
+    } else if (currentDay >= (targetCycleDays - 16) && currentDay <= (targetCycleDays - 12)) {
+      phase = 'Ovulatory Phase';
+    } else if (currentDay > (targetCycleDays - 12)) {
+      phase = 'Luteal Phase';
+    }
+
+    return { currentDay, phase };
+  };
+
+  const cycleCalc = getCycleCalculation();
+
   return (
     <>
       <header className="numa-header glass-card">
-        
         {/* Row 1: Single Clean Header Bar */}
         <div className="header-top-row">
           
@@ -86,11 +113,11 @@ export default function Header({
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <h1 style={{ fontSize: '1.05rem', fontWeight: '800', lineHeight: 1.1 }}>NUMA</h1>
                 <span className="badge badge-primary" style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem' }}>
-                  Day {safeProfile.currentCycleDay || 14}
+                  Day {cycleCalc.currentDay}
                 </span>
               </div>
               <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', margin: 0 }}>
-                {safeProfile.currentPhase || 'Follicular Phase'}
+                {cycleCalc.phase}
               </p>
             </div>
           </div>
