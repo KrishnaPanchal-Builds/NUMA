@@ -1,7 +1,9 @@
 {
+  "id": "/",
   "short_name": "NUMA",
   "name": "NUMA: PCOS Health Companion",
   "description": "Personalized PCOS health companion turning everyday records into an organized health story.",
+  "categories": ["health", "medical", "lifestyle"],
   "icons": [
     {
       "src": "/pwa-192.png",
