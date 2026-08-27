@@ -301,6 +301,7 @@ export default function App() {
           isOpen={!isUserAuthenticated}
           onCompleteOnboarding={handleCompleteOnboarding}
           onLoginSuccess={handleLoginSuccess}
+          onOpenDownloadApk={() => setShowDownloadApkModal(true)}
         />
 
         {/* Main Full-Width App Container with Top Header Navbar */}
