@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar as CalendarIcon, Clock, Activity, Plus, Check, Filter, Search, ChevronRight, Info, Edit2, TrendingUp, TrendingDown, Minus, List } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Activity, Plus, Check, Filter, Search, ChevronRight, Info, Edit2, TrendingUp, TrendingDown, Minus, List, Layers } from 'lucide-react';
 import GoogleCalendarView from '../components/GoogleCalendarView';
 import PersonalHealthTimeline from '../components/PersonalHealthTimeline';
 import SymptomModal from '../components/SymptomModal';
@@ -49,36 +49,101 @@ export default function TrackView({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       
-      {/* View Sub-Navigation Bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', flexWrap: 'wrap' }}>
-        <button
-          onClick={() => setActiveSubTab('centralTimeline')}
-          className={`btn ${activeSubTab === 'centralTimeline' ? 'btn-primary' : 'btn-outline'}`}
-          style={{ fontSize: '0.875rem' }}
-        >
-          <List size={16} /> Central Health Timeline
-        </button>
+      {/* Mobile-Optimized Sub-Navigation Bar */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        
+        {/* Desktop Buttons Navigation */}
+        <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setActiveSubTab('centralTimeline')}
+            className={`btn ${activeSubTab === 'centralTimeline' ? 'btn-primary' : 'btn-outline'}`}
+            style={{ fontSize: '0.875rem' }}
+          >
+            <List size={16} /> Central Health Timeline
+          </button>
 
-        <button
-          onClick={() => setActiveSubTab('googleCalendar')}
-          className={`btn ${activeSubTab === 'googleCalendar' ? 'btn-primary' : 'btn-outline'}`}
-          style={{ fontSize: '0.875rem' }}
-        >
-          <CalendarIcon size={16} /> 3-Month Google Calendar
-        </button>
+          <button
+            onClick={() => setActiveSubTab('googleCalendar')}
+            className={`btn ${activeSubTab === 'googleCalendar' ? 'btn-primary' : 'btn-outline'}`}
+            style={{ fontSize: '0.875rem' }}
+          >
+            <CalendarIcon size={16} /> 3-Month Google Calendar
+          </button>
 
-        <button
-          onClick={() => setActiveSubTab('symptoms')}
-          className={`btn ${activeSubTab === 'symptoms' ? 'btn-primary' : 'btn-outline'}`}
-          style={{ fontSize: '0.875rem' }}
-        >
-          <Activity size={16} /> Symptom Grid & Manager ({(symptoms || []).length})
-        </button>
+          <button
+            onClick={() => setActiveSubTab('symptoms')}
+            className={`btn ${activeSubTab === 'symptoms' ? 'btn-primary' : 'btn-outline'}`}
+            style={{ fontSize: '0.875rem' }}
+          >
+            <Activity size={16} /> Symptom Grid & Manager ({(symptoms || []).length})
+          </button>
+        </div>
+
+        {/* Mobile Segmented View Selector */}
+        <div className="hide-desktop" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.35rem', background: 'var(--bg-input)', padding: '0.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+          <button
+            onClick={() => setActiveSubTab('centralTimeline')}
+            style={{
+              padding: '0.5rem 0.25rem',
+              borderRadius: 'var(--radius-sm)',
+              background: activeSubTab === 'centralTimeline' ? 'var(--primary)' : 'transparent',
+              color: activeSubTab === 'centralTimeline' ? '#FFF' : 'var(--text-muted)',
+              fontWeight: activeSubTab === 'centralTimeline' ? '800' : '600',
+              fontSize: '0.75rem',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '0.15rem'
+            }}
+          >
+            <List size={14} /> Timeline
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('googleCalendar')}
+            style={{
+              padding: '0.5rem 0.25rem',
+              borderRadius: 'var(--radius-sm)',
+              background: activeSubTab === 'googleCalendar' ? 'var(--primary)' : 'transparent',
+              color: activeSubTab === 'googleCalendar' ? '#FFF' : 'var(--text-muted)',
+              fontWeight: activeSubTab === 'googleCalendar' ? '800' : '600',
+              fontSize: '0.75rem',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '0.15rem'
+            }}
+          >
+            <CalendarIcon size={14} /> Calendar
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('symptoms')}
+            style={{
+              padding: '0.5rem 0.25rem',
+              borderRadius: 'var(--radius-sm)',
+              background: activeSubTab === 'symptoms' ? 'var(--primary)' : 'transparent',
+              color: activeSubTab === 'symptoms' ? '#FFF' : 'var(--text-muted)',
+              fontWeight: activeSubTab === 'symptoms' ? '800' : '600',
+              fontSize: '0.75rem',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '0.15rem'
+            }}
+          >
+            <Activity size={14} /> Symptoms
+          </button>
+        </div>
+
       </div>
 
-      {/* TAB 1: SECTION 11 CENTRAL PERSONAL HEALTH TIMELINE */}
+      {/* SUB-TAB 1: CENTRAL PERSONAL HEALTH TIMELINE */}
       {activeSubTab === 'centralTimeline' && (
         <PersonalHealthTimeline
           timeline={timeline}
@@ -87,114 +152,124 @@ export default function TrackView({
           labs={labs}
           documents={documents}
           appointments={appointments}
-          onUpdateTimelineEntry={onUpdateTimelineEntry}
-          onDeleteTimelineEntry={onDeleteTimelineEntry}
-          onAddTimelineEntry={onAddTimelineEntry}
-        />
-      )}
-
-      {/* TAB 2: GOOGLE CALENDAR VIEW */}
-      {activeSubTab === 'googleCalendar' && (
-        <GoogleCalendarView
-          events={timeline}
-          cycles={cycles}
-          onAddEvent={onAddTimelineEntry}
-          onUpdateEvent={onUpdateTimelineEntry}
+          onAddEntry={onAddTimelineEntry}
+          onUpdateEntry={onUpdateTimelineEntry}
           onLogPeriod={onLogPeriod}
           onDeletePeriodLog={onDeletePeriodLog}
           onDeleteTimelineEntry={onDeleteTimelineEntry}
         />
       )}
 
-      {/* TAB 3: SYMPTOM SEVERITY GRID & CONTINUOUS MANAGER */}
+      {/* SUB-TAB 2: GOOGLE CALENDAR VIEW */}
+      {activeSubTab === 'googleCalendar' && (
+        <GoogleCalendarView
+          cycles={cycles}
+          timeline={timeline}
+          appointments={appointments}
+          onLogPeriod={onLogPeriod}
+        />
+      )}
+
+      {/* SUB-TAB 3: SYMPTOM GRID & MANAGER */}
       {activeSubTab === 'symptoms' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           
-          <div className="numa-card glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          {/* Header Bar */}
+          <div className="numa-card glass-card" style={{ padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
             <div>
-              <span className="badge badge-teal" style={{ marginBottom: '0.25rem' }}>Full PCOS Symptom Suite</span>
-              <h2 style={{ fontSize: '1.35rem', fontWeight: '800' }}>Symptom Severity & Progression Manager</h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                Track severity (1-5), duration, time of occurrence, and improvement/worsening trends.
+              <h3 style={{ fontSize: '1.15rem', fontWeight: '800' }}>Symptom Grid & Custom Tracker</h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                Track severity (0–5), custom user parameters, and trend indicators across 9 clinical categories.
               </p>
             </div>
-            <button onClick={handleOpenAddCustom} className="btn btn-primary">
-              <Plus size={18} /> Add Custom Symptom
+
+            <button onClick={handleOpenAddCustom} className="btn btn-primary" style={{ padding: '0.5rem 0.9rem', fontSize: '0.825rem' }}>
+              <Plus size={16} /> + Add Custom Symptom
             </button>
           </div>
 
-          <div className="numa-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <div style={{ flex: 1, position: 'relative', minWidth: '220px' }}>
-                <Search size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
-                <input
-                  type="text"
-                  placeholder="Search PCOS symptoms (e.g. Acne, Fatigue)..."
-                  value={symptomSearch}
-                  onChange={(e) => setSymptomSearch(e.target.value)}
-                  style={{ width: '100%', paddingLeft: '2.5rem' }}
-                />
-              </div>
+          {/* Search & Category Filter Bar */}
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input
+                type="text"
+                value={symptomSearch}
+                onChange={(e) => setSymptomSearch(e.target.value)}
+                placeholder="Search symptom or parameter..."
+                style={{ width: '100%', paddingLeft: '2.3rem' }}
+              />
+            </div>
 
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', alignItems: 'center' }}>
+            {/* Category Select Filter */}
+            <div style={{ minWidth: '160px' }}>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem' }}
+              >
                 {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`btn ${selectedCategory === cat ? 'btn-primary' : 'btn-outline'}`}
-                    style={{ fontSize: '0.75rem', padding: '0.35rem 0.75rem' }}
-                  >
-                    {cat}
-                  </button>
+                  <option key={cat} value={cat}>
+                    Category: {cat}
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
           </div>
 
-          <div className="grid-1-2-3">
+          {/* Symptom Cards Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
             {filteredSymptoms.map((sym) => (
-              <div key={sym.id} className="numa-card numa-card-interactive" onClick={() => handleOpenEditSymptom(sym)}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                  <span className="badge badge-teal">{sym.category}</span>
-                  <span className={`badge ${sym.trend === 'improving' ? 'badge-mint' : sym.trend === 'worsening' ? 'badge-danger' : 'badge-amber'}`}>
-                    {sym.trend === 'improving' ? <TrendingDown size={12} /> : sym.trend === 'worsening' ? <TrendingUp size={12} /> : <Minus size={12} />}
-                    {sym.trend}
+              <div
+                key={sym.id}
+                className="numa-card glass-card"
+                style={{ padding: '1.15rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', border: '1px solid var(--border-color)' }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <span className="badge badge-primary" style={{ fontSize: '0.65rem', marginBottom: '0.25rem' }}>
+                      {sym.category}
+                    </span>
+                    <h4 style={{ fontSize: '1rem', fontWeight: '800' }}>{sym.name}</h4>
+                  </div>
+
+                  <button
+                    onClick={() => handleOpenEditSymptom(sym)}
+                    className="btn btn-outline btn-icon"
+                    style={{ width: '30px', height: '30px' }}
+                    title="Edit Symptom Severity & Notes"
+                  >
+                    <Edit2 size={13} />
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-input)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-md)' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Current Severity</span>
+                  <span style={{ fontSize: '0.9rem', fontWeight: '800', color: sym.severity >= 4 ? 'var(--danger)' : 'var(--primary)' }}>
+                    {sym.severity || 0} / 5
                   </span>
                 </div>
 
-                <h4 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '0.4rem' }}>{sym.name}</h4>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-                  Freq: <strong>{sym.frequency}</strong> • Duration: {sym.duration}
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                  <div style={{ flex: 1, height: '8px', background: 'var(--bg-input)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
-                    <div style={{
-                      width: `${(sym.severity / 5) * 100}%`,
-                      height: '100%',
-                      background: sym.severity >= 4 ? 'var(--danger)' : sym.severity >= 3 ? 'var(--accent-amber)' : 'var(--accent-mint)'
-                    }} />
-                  </div>
-                  <span style={{ fontWeight: '800', fontSize: '0.85rem' }}>{sym.severity}/5</span>
-                </div>
-
-                <button className="btn btn-outline" style={{ width: '100%', fontSize: '0.75rem', padding: '0.35rem', gap: '0.3rem' }}>
-                  <Edit2 size={13} /> Update / Edit Symptom
-                </button>
+                <p style={{ fontSize: '0.775rem', color: 'var(--text-muted)', margin: 0, lineHeight: '1.4' }}>
+                  {sym.notes || 'No recent notes.'}
+                </p>
               </div>
             ))}
           </div>
+
         </div>
       )}
 
-      {/* SYMPTOM EDIT / CUSTOM SYMPTOM MODAL */}
-      <SymptomModal
-        isOpen={showSymptomModal}
-        onClose={() => setShowSymptomModal(false)}
-        symptom={editingSymptom}
-        onSaveSymptom={onSaveSymptom}
-        onAddCustomSymptom={onAddCustomSymptom}
-      />
+      {/* Symptom Manager Modal */}
+      {showSymptomModal && (
+        <SymptomModal
+          isOpen={showSymptomModal}
+          onClose={() => setShowSymptomModal(false)}
+          editingSymptom={editingSymptom}
+          onSaveSymptom={onSaveSymptom}
+          onAddCustomSymptom={onAddCustomSymptom}
+        />
+      )}
 
     </div>
   );

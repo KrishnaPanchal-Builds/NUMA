@@ -187,7 +187,8 @@ export default function PcosFileView({ labs = [], documents = [], profile, cycle
       </div>
 
       {/* Main Health Record Category Navigation Tabs */}
-      <div style={{ display: 'flex', gap: '0.4rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', overflowX: 'auto' }}>
+      {/* Desktop Tabs Bar */}
+      <div className="hide-mobile" style={{ display: 'flex', gap: '0.4rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', overflowX: 'auto' }}>
         <button onClick={() => setActiveTab('summary')} className={`btn ${activeTab === 'summary' ? 'btn-primary' : 'btn-outline'}`} style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
           <Sparkles size={14} /> Master Health Summary
         </button>
@@ -207,8 +208,28 @@ export default function PcosFileView({ labs = [], documents = [], profile, cycle
           <Pill size={14} /> Meds & Supplements ({activeMeds.length})
         </button>
         <button onClick={() => setActiveTab('appointments')} className={`btn ${activeTab === 'appointments' ? 'btn-primary' : 'btn-outline'}`} style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
-          <Stethoscope size={14} /> Appointments & Questions ({appointments.length})
+          <Stethoscope size={14} /> Appointments ({appointments.length})
         </button>
+      </div>
+
+      {/* Mobile Select Category Dropdown (1-Tap Switch) */}
+      <div className="hide-desktop" style={{ width: '100%', marginBottom: '0.5rem' }}>
+        <label style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.35rem', display: 'block' }}>
+          📁 Select File Category:
+        </label>
+        <select
+          value={activeTab}
+          onChange={(e) => setActiveTab(e.target.value)}
+          style={{ width: '100%', padding: '0.65rem 0.85rem', fontSize: '0.85rem', fontWeight: '700' }}
+        >
+          <option value="summary">✨ Master Health Summary</option>
+          <option value="cycles">📅 Cycles & Bleeding ({activeCycles.length})</option>
+          <option value="symptoms">📈 Symptom Timeline ({activeTimeline.length})</option>
+          <option value="labs">🔬 Labs & Biomarkers ({labs.length})</option>
+          <option value="documents">📁 Documents Vault ({documents.length})</option>
+          <option value="meds">💊 Meds & Supplements ({activeMeds.length})</option>
+          <option value="appointments">🩺 Appointments & Prep ({appointments.length})</option>
+        </select>
       </div>
 
       {/* TAB 1: MASTER HEALTH SUMMARY BRIEF */}
