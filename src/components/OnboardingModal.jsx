@@ -231,7 +231,7 @@ export default function OnboardingModal({ isOpen, onCompleteOnboarding, onLoginS
 
             </div>
 
-            {/* Option C: Direct Download Mobile App (APK) Banner */}
+            {/* Option C: 1-Tap Mobile App Install Banner */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '0.5rem' }}>
               <button
                 type="button"
@@ -239,16 +239,8 @@ export default function OnboardingModal({ isOpen, onCompleteOnboarding, onLoginS
                 className="btn btn-secondary"
                 style={{ width: '100%', padding: '0.9rem 1rem', fontSize: '0.925rem', fontWeight: '800', gap: '0.6rem', justifyContent: 'center' }}
               >
-                <Smartphone size={20} /> 📱 Download Android App (APK) & Install Mobile App
+                <Smartphone size={20} /> 📱 Install NUMA App on Smartphone (Android / iOS)
               </button>
-
-              <a
-                href="/numa-pcos-companion.apk"
-                download="numa-pcos-companion.apk"
-                style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', textDecoration: 'underline' }}
-              >
-                📥 Direct Download APK File (numa-pcos-companion.apk)
-              </a>
             </div>
 
           </div>
