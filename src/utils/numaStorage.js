@@ -3,15 +3,50 @@
 const ACCOUNTS_REGISTRY_KEY = 'numa_db_accounts_registry';
 const ACTIVE_USER_ID_KEY = 'numa_active_user_id';
 
-// Helper: Get Accounts Registry
+// Default Seed Accounts for Out-of-the-Box Access
+const DEFAULT_DEMO_ACCOUNTS = [
+  {
+    id: 'usr_demo_krishna',
+    name: 'Krishna Panchal',
+    email: 'krishna@numa.health',
+    password: 'password123',
+    registeredAt: '2026-08-01T00:00:00.000Z'
+  },
+  {
+    id: 'usr_demo_user',
+    name: 'Demo User',
+    email: 'demo@numa.health',
+    password: 'password',
+    registeredAt: '2026-08-01T00:00:00.000Z'
+  }
+];
+
+// Helper: User Name Initials Generator
+export function getUserInitials(name) {
+  if (!name || typeof name !== 'string') return 'KP';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+// Helper: Get Accounts Registry (Auto-seeds demo accounts if empty)
 export function getAccountsRegistry() {
   try {
     const data = localStorage.getItem(ACCOUNTS_REGISTRY_KEY);
-    const parsed = data ? JSON.parse(data) : [];
-    return Array.isArray(parsed) ? parsed : [];
+    if (!data) {
+      saveAccountsRegistry(DEFAULT_DEMO_ACCOUNTS);
+      return DEFAULT_DEMO_ACCOUNTS;
+    }
+    const parsed = JSON.parse(data);
+    const accountsArray = Array.isArray(parsed) ? parsed : [];
+    if (accountsArray.length === 0) {
+      saveAccountsRegistry(DEFAULT_DEMO_ACCOUNTS);
+      return DEFAULT_DEMO_ACCOUNTS;
+    }
+    return accountsArray;
   } catch (e) {
     console.error('Error reading accounts registry:', e);
-    return [];
+    return DEFAULT_DEMO_ACCOUNTS;
   }
 }
 
@@ -27,21 +62,40 @@ export function saveAccountsRegistry(accounts) {
 // Authenticate Existing User by Email/Username & Password
 export function authenticateUser(loginInput, passwordInput) {
   const accounts = getAccountsRegistry();
-  const inputNorm = loginInput.trim().toLowerCase();
-  const passNorm = passwordInput.trim();
+  const inputNorm = (loginInput || '').trim().toLowerCase();
+  const passNorm = (passwordInput || '').trim();
 
-  const found = accounts.find(
-    (acc) =>
-      (acc.email?.toLowerCase() === inputNorm || acc.name?.toLowerCase() === inputNorm) &&
-      acc.password === passNorm
-  );
+  if (!inputNorm || !passNorm) {
+    return {
+      success: false,
+      message: 'Please enter both your email/username and password.'
+    };
+  }
+
+  // Flexible match by Email, Username prefix, or Full Name
+  const found = accounts.find((acc) => {
+    const accEmail = (acc.email || '').trim().toLowerCase();
+    const accName = (acc.name || '').trim().toLowerCase();
+    const accEmailPrefix = accEmail.split('@')[0];
+    const accPassword = (acc.password || '').trim();
+
+    const matchesIdentity = (
+      accEmail === inputNorm ||
+      accName === inputNorm ||
+      accEmailPrefix === inputNorm
+    );
+
+    const matchesPassword = (accPassword === passNorm);
+
+    return matchesIdentity && matchesPassword;
+  });
 
   if (found) {
     return { success: true, user: found };
   } else {
     return {
       success: false,
-      message: 'Invalid username/email or password. Please verify your credentials or register a new user.'
+      message: 'Incorrect email/username or password. Please verify your credentials or use the 1-Tap Demo Sign In button below.'
     };
   }
 }
@@ -49,10 +103,14 @@ export function authenticateUser(loginInput, passwordInput) {
 // Register New User Account with Password
 export function registerNewUserAccount(name, email, password) {
   const accounts = getAccountsRegistry();
-  const emailNorm = email.trim().toLowerCase();
+  const emailNorm = (email || '').trim().toLowerCase();
 
-  const existing = accounts.find((acc) => acc.email?.toLowerCase() === emailNorm);
+  const existing = accounts.find((acc) => (acc.email || '').trim().toLowerCase() === emailNorm);
   if (existing) {
+    // Update existing credentials if re-registering
+    existing.name = name.trim();
+    existing.password = password.trim();
+    saveAccountsRegistry(accounts);
     return existing;
   }
 
@@ -126,7 +184,7 @@ export function loadCycles(userId, fallback = []) {
 export function saveCycles(userId, cyclesData) {
   if (!userId) return;
   try {
-    localStorage.setItem(getKey(userId, 'cycles'), JSON.stringify(cyclesData));
+    localStorage.setItem(getKey(userId, 'cycles'), JSON.stringify(Array.isArray(cyclesData) ? cyclesData : []));
   } catch (e) {
     console.error('Failed saving cycles:', e);
   }
@@ -148,7 +206,7 @@ export function loadTimeline(userId, fallback = []) {
 export function saveTimeline(userId, timelineData) {
   if (!userId) return;
   try {
-    localStorage.setItem(getKey(userId, 'timeline'), JSON.stringify(timelineData));
+    localStorage.setItem(getKey(userId, 'timeline'), JSON.stringify(Array.isArray(timelineData) ? timelineData : []));
   } catch (e) {
     console.error('Failed saving timeline:', e);
   }
@@ -170,14 +228,14 @@ export function loadSymptoms(userId, fallback = []) {
 export function saveSymptoms(userId, symptomsData) {
   if (!userId) return;
   try {
-    localStorage.setItem(getKey(userId, 'symptoms'), JSON.stringify(symptomsData));
+    localStorage.setItem(getKey(userId, 'symptoms'), JSON.stringify(Array.isArray(symptomsData) ? symptomsData : []));
   } catch (e) {
     console.error('Failed saving symptoms:', e);
   }
 }
 
-// Daily Check-In Storage
-export function loadDailyCheckIn(userId, fallback = {}) {
+// Daily CheckIn Storage
+export function loadDailyCheckIn(userId, fallback) {
   if (!userId) return fallback;
   try {
     const data = localStorage.getItem(getKey(userId, 'dailyCheckIn'));
@@ -192,11 +250,11 @@ export function saveDailyCheckIn(userId, checkInData) {
   try {
     localStorage.setItem(getKey(userId, 'dailyCheckIn'), JSON.stringify(checkInData));
   } catch (e) {
-    console.error('Failed saving daily check-in:', e);
+    console.error('Failed saving daily checkin:', e);
   }
 }
 
-// Labs Storage (Guarantees Array)
+// Labs Storage
 export function loadLabs(userId, fallback = []) {
   if (!userId) return Array.isArray(fallback) ? fallback : [];
   try {
@@ -212,13 +270,13 @@ export function loadLabs(userId, fallback = []) {
 export function saveLabs(userId, labsData) {
   if (!userId) return;
   try {
-    localStorage.setItem(getKey(userId, 'labs'), JSON.stringify(labsData));
+    localStorage.setItem(getKey(userId, 'labs'), JSON.stringify(Array.isArray(labsData) ? labsData : []));
   } catch (e) {
     console.error('Failed saving labs:', e);
   }
 }
 
-// Documents Storage (Guarantees Array)
+// Documents Storage
 export function loadDocuments(userId, fallback = []) {
   if (!userId) return Array.isArray(fallback) ? fallback : [];
   try {
@@ -231,16 +289,16 @@ export function loadDocuments(userId, fallback = []) {
   }
 }
 
-export function saveDocuments(userId, docsData) {
+export function saveDocuments(userId, documentsData) {
   if (!userId) return;
   try {
-    localStorage.setItem(getKey(userId, 'documents'), JSON.stringify(docsData));
+    localStorage.setItem(getKey(userId, 'documents'), JSON.stringify(Array.isArray(documentsData) ? documentsData : []));
   } catch (e) {
     console.error('Failed saving documents:', e);
   }
 }
 
-// Medications Storage (Guarantees Array)
+// Medications Storage
 export function loadMeds(userId, fallback = []) {
   if (!userId) return Array.isArray(fallback) ? fallback : [];
   try {
@@ -256,13 +314,13 @@ export function loadMeds(userId, fallback = []) {
 export function saveMeds(userId, medsData) {
   if (!userId) return;
   try {
-    localStorage.setItem(getKey(userId, 'meds'), JSON.stringify(medsData));
+    localStorage.setItem(getKey(userId, 'meds'), JSON.stringify(Array.isArray(medsData) ? medsData : []));
   } catch (e) {
     console.error('Failed saving meds:', e);
   }
 }
 
-// Meals Storage (Guarantees Array)
+// Meals Storage
 export function loadMeals(userId, fallback = []) {
   if (!userId) return Array.isArray(fallback) ? fallback : [];
   try {
@@ -278,14 +336,14 @@ export function loadMeals(userId, fallback = []) {
 export function saveMeals(userId, mealsData) {
   if (!userId) return;
   try {
-    localStorage.setItem(getKey(userId, 'meals'), JSON.stringify(mealsData));
+    localStorage.setItem(getKey(userId, 'meals'), JSON.stringify(Array.isArray(mealsData) ? mealsData : []));
   } catch (e) {
     console.error('Failed saving meals:', e);
   }
 }
 
 // Hydration Storage
-export function loadHydration(userId, fallback = { date: new Date().toISOString().split('T')[0], amountMl: 0, targetMl: 2500 }) {
+export function loadHydration(userId, fallback) {
   if (!userId) return fallback;
   try {
     const data = localStorage.getItem(getKey(userId, 'hydration'));
@@ -302,12 +360,4 @@ export function saveHydration(userId, hydrationData) {
   } catch (e) {
     console.error('Failed saving hydration:', e);
   }
-}
-
-// User Initials Helper
-export function getUserInitials(name) {
-  if (!name) return 'KP';
-  const parts = name.trim().split(' ');
-  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
