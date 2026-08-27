@@ -9,6 +9,7 @@ import HealthDataModal from './components/HealthDataModal';
 import HealthSummaryModal from './components/HealthSummaryModal';
 import PrivacySettingsModal from './components/PrivacySettingsModal';
 import SettingsModal from './components/SettingsModal';
+import DownloadApkModal from './components/DownloadApkModal';
 import NotificationsDrawer from './components/NotificationsDrawer';
 import OnboardingModal from './components/OnboardingModal';
 
@@ -69,6 +70,7 @@ export default function App() {
   const [showHealthModal, setShowHealthModal] = useState(false);
   const [showHealthSummary, setShowHealthSummary] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [showDownloadApkModal, setShowDownloadApkModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
 
@@ -313,6 +315,7 @@ export default function App() {
             onOpenMeditation={() => setShowMeditationModal(true)}
             onOpenHealthSummary={() => setShowHealthSummary(true)}
             onOpenPrivacy={() => setShowPrivacyModal(true)}
+            onOpenDownloadApk={() => setShowDownloadApkModal(true)}
             onOpenSettings={() => setShowSettingsModal(true)}
             onOpenNotifications={() => setShowNotificationsDrawer(true)}
             onLogout={handleLogout}
@@ -527,6 +530,11 @@ export default function App() {
           aiConsent={aiConsent}
           setAiConsent={setAiConsent}
           onLogout={handleLogout}
+        />
+
+        <DownloadApkModal
+          isOpen={showDownloadApkModal}
+          onClose={() => setShowDownloadApkModal(false)}
         />
 
         <SettingsModal

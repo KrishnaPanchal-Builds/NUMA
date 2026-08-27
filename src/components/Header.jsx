@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Calendar, Activity, FileText, Stethoscope, Bot, BookOpen, Sun, Moon, Plus, Heart, Bell, LogOut, Brain, Sparkles, Pill, Utensils, FileCheck, Lock } from 'lucide-react';
+import { Home, Calendar, Activity, FileText, Stethoscope, Bot, BookOpen, Sun, Moon, Plus, Heart, Bell, LogOut, Brain, Sparkles, Pill, Utensils, FileCheck, Lock, Smartphone, Download } from 'lucide-react';
 import { getUserInitials } from '../utils/numaStorage';
 
 export default function Header({
@@ -12,6 +12,7 @@ export default function Header({
   onOpenMeditation,
   onOpenHealthSummary,
   onOpenPrivacy,
+  onOpenDownloadApk,
   onOpenSettings,
   onOpenNotifications,
   onLogout,
@@ -62,7 +63,7 @@ export default function Header({
       boxShadow: 'var(--shadow-md)'
     }}>
       
-      {/* Row 1: Brand, Privacy, Health Summary, Quick Buttons */}
+      {/* Row 1: Brand, Download APK, Privacy, Health Summary, Quick Buttons */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
         
         {/* Left Branding */}
@@ -93,6 +94,17 @@ export default function Header({
         {/* Right Action Icons & Voice Breathing + Meditation Quick Buttons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           
+          {/* Download Android App Button */}
+          <button
+            onClick={onOpenDownloadApk}
+            className="btn btn-secondary"
+            style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', gap: '0.35rem' }}
+            title="Download Android APK App & 1-Tap Mobile Install"
+          >
+            <Smartphone size={15} />
+            <span>📱 Download App (APK)</span>
+          </button>
+
           {/* Privacy & Security Button */}
           <button
             onClick={onOpenPrivacy}
