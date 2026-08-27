@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Calendar, Activity, FileText, Stethoscope, Bot, BookOpen, Sun, Moon, Plus, Heart, Bell, LogOut, Brain, Sparkles, Pill, Utensils, FileCheck, Lock, Smartphone, MoreHorizontal, X } from 'lucide-react';
+import { Home, Calendar, Activity, FileText, Stethoscope, Bot, BookOpen, Sun, Moon, Plus, Heart, Bell, LogOut, Brain, Sparkles, Pill, Utensils, FileCheck, Lock, Smartphone, Menu, X, ChevronRight } from 'lucide-react';
 import { getUserInitials } from '../utils/numaStorage';
 
 export default function Header({
@@ -18,7 +18,7 @@ export default function Header({
   onLogout,
   profile
 }) {
-  const [showMobileMore, setShowMobileMore] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const userInitials = getUserInitials(profile.name);
 
   // Modular Active Tracking Feature Preferences
@@ -50,32 +50,21 @@ export default function Header({
 
   const visibleNavTabs = allNavTabs.filter((t) => t.enabled);
 
-  // Primary 5 Mobile Tabs
+  // Primary 5 Mobile Bottom Tabs
   const primaryMobileTabs = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'track', label: 'Track', icon: Calendar },
-    { id: 'insights', label: 'Insights', icon: Activity },
+    { id: 'insights', label: 'Patterns', icon: Activity },
     { id: 'pcosFile', label: 'My File', icon: FileText },
     { id: 'ai', label: 'NUMA AI', icon: Bot },
   ];
 
   return (
     <>
-      <header className="numa-header glass-card" style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        borderBottom: '1px solid var(--border-color)',
-        padding: '0.75rem 1rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.75rem',
-        background: 'var(--bg-card)',
-        boxShadow: 'var(--shadow-md)'
-      }}>
+      <header className="numa-header glass-card">
         
-        {/* Row 1: Brand Header Bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+        {/* Row 1: Single Clean Header Bar */}
+        <div className="header-top-row">
           
           {/* Left Branding */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
@@ -90,21 +79,26 @@ export default function Header({
               color: '#FFF',
               fontWeight: '800',
               fontSize: '1.15rem',
-              boxShadow: 'var(--shadow-glow)'
+              boxShadow: 'var(--shadow-glow)',
+              flexShrink: 0
             }}>
               N
             </div>
             <div>
-              <h1 style={{ fontSize: '1.1rem', fontWeight: '800', lineHeight: 1.1 }}>NUMA Health</h1>
-              <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                Day {profile.currentCycleDay || 14} • {profile.currentPhase || 'Follicular'}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <h1 style={{ fontSize: '1.05rem', fontWeight: '800', lineHeight: 1.1 }}>NUMA</h1>
+                <span className="badge badge-primary" style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem' }}>
+                  Day {profile.currentCycleDay || 14}
+                </span>
+              </div>
+              <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', margin: 0 }}>
+                {profile.currentPhase || 'Follicular Phase'}
               </p>
             </div>
           </div>
 
-          {/* Right Desktop Actions (Hidden on small mobile screens) */}
-          <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
-            
+          {/* Desktop Right Action Buttons */}
+          <div className="desktop-actions hide-mobile">
             <button onClick={onOpenDownloadApk} className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.78rem' }}>
               <Smartphone size={14} /> 📱 App (APK)
             </button>
@@ -147,9 +141,9 @@ export default function Header({
             </button>
           </div>
 
-          {/* Mobile Right Bar Actions (Clean & Uncluttered) */}
-          <div className="hide-desktop" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <button onClick={onOpenQuickCheckIn} className="btn btn-primary" style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', gap: '0.2rem' }}>
+          {/* Mobile Compact Right Bar Actions */}
+          <div className="mobile-actions hide-desktop">
+            <button onClick={onOpenQuickCheckIn} className="btn btn-primary" style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', gap: '0.25rem', borderRadius: 'var(--radius-full)' }}>
               <Plus size={14} /> Log
             </button>
 
@@ -157,27 +151,15 @@ export default function Header({
               <Bell size={15} />
             </button>
 
-            <button onClick={() => setShowMobileMore(true)} className="btn btn-outline btn-icon" style={{ width: '34px', height: '34px' }}>
-              <MoreHorizontal size={16} />
-            </button>
-
-            <button onClick={onOpenSettings} style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'var(--primary-light)', color: 'var(--primary)', fontWeight: '800', fontSize: '0.75rem', border: '2px solid var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {userInitials}
+            <button onClick={() => setShowMobileMenu(true)} className="btn btn-secondary btn-icon" style={{ width: '34px', height: '34px' }}>
+              <Menu size={18} />
             </button>
           </div>
 
         </div>
 
-        {/* Row 2: Desktop Top Navbar (Hidden on Mobile, replaced by Bottom Tab Bar) */}
-        <nav className="hide-mobile" style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.45rem',
-          overflowX: 'auto',
-          padding: '0.25rem 0',
-          borderTop: '1px solid var(--border-color)',
-          scrollbarWidth: 'thin'
-        }}>
+        {/* Desktop Top Navbar (Hidden on Mobile) */}
+        <nav className="desktop-nav hide-mobile">
           {visibleNavTabs.map((tab) => {
             const IconComp = tab.icon;
             const isActive = activeTab === tab.id;
@@ -209,23 +191,8 @@ export default function Header({
 
       </header>
 
-      {/* NATIVE MOBILE BOTTOM NAVIGATION BAR (FIXED ON SMARTPHONES) */}
-      <nav className="mobile-bottom-nav hide-desktop" style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 999,
-        background: 'var(--bg-glass)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderTop: '1px solid var(--border-color)',
-        display: 'flex',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        padding: '0.4rem 0.25rem',
-        boxShadow: '0 -4px 16px rgba(0,0,0,0.08)'
-      }}>
+      {/* NATIVE MOBILE BOTTOM NAVIGATION TAB BAR */}
+      <nav className="mobile-bottom-nav hide-desktop">
         {primaryMobileTabs.map((tab) => {
           const IconComp = tab.icon;
           const isActive = activeTab === tab.id;
@@ -237,17 +204,17 @@ export default function Header({
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '0.2rem',
+                gap: '0.15rem',
                 flex: 1,
-                padding: '0.3rem 0',
+                padding: '0.25rem 0',
                 color: isActive ? 'var(--primary)' : 'var(--text-muted)',
                 fontWeight: isActive ? '800' : '600',
-                fontSize: '0.7rem',
+                fontSize: '0.68rem',
                 transition: 'all 0.2s ease'
               }}
             >
               <div style={{
-                padding: '0.3rem 0.8rem',
+                padding: '0.25rem 0.75rem',
                 borderRadius: 'var(--radius-full)',
                 background: isActive ? 'var(--primary-light)' : 'transparent',
                 display: 'flex',
@@ -261,82 +228,130 @@ export default function Header({
           );
         })}
 
-        {/* More Tools Menu Trigger */}
+        {/* Mobile Menu Trigger */}
         <button
-          onClick={() => setShowMobileMore(true)}
+          onClick={() => setShowMobileMenu(true)}
           style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '0.2rem',
+            gap: '0.15rem',
             flex: 1,
-            padding: '0.3rem 0',
+            padding: '0.25rem 0',
             color: 'var(--text-muted)',
             fontWeight: '600',
-            fontSize: '0.7rem'
+            fontSize: '0.68rem'
           }}
         >
-          <div style={{ padding: '0.3rem 0.8rem', borderRadius: 'var(--radius-full)' }}>
-            <MoreHorizontal size={18} />
+          <div style={{ padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-full)' }}>
+            <Menu size={18} />
           </div>
-          <span>More</span>
+          <span>Menu</span>
         </button>
       </nav>
 
-      {/* MOBILE MORE TOOLS DRAWER POPUP */}
-      {showMobileMore && (
-        <div className="modal-overlay" onClick={() => setShowMobileMore(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '420px', padding: '1.5rem' }}>
+      {/* FULL MOBILE HEALTH HUB DRAWER MODAL */}
+      {showMobileMenu && (
+        <div className="modal-overlay" onClick={() => setShowMobileMenu(false)} style={{ zIndex: 99999 }}>
+          <div className="modal-content glass-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px', padding: '1.5rem', borderRadius: 'var(--radius-xl)' }}>
+            
+            {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '800' }}>NUMA Health Tools</h3>
-              <button onClick={() => setShowMobileMore(false)} className="btn btn-outline btn-icon" style={{ width: '32px', height: '32px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-md)', background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800' }}>
+                  {userInitials}
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '800' }}>{profile.name || 'Krishna'}</h3>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>NUMA Health Hub Navigation</p>
+                </div>
+              </div>
+              <button onClick={() => setShowMobileMenu(false)} className="btn btn-outline btn-icon" style={{ borderRadius: '50%' }}>
                 <X size={16} />
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
-              <button onClick={() => { setActiveTab('sleep'); setShowMobileMore(false); }} className="btn btn-outline" style={{ justifyContent: 'flex-start', padding: '0.65rem' }}>
-                <Moon size={16} color="var(--primary)" /> Sleep Track
-              </button>
-
-              <button onClick={() => { setActiveTab('mental'); setShowMobileMore(false); }} className="btn btn-outline" style={{ justifyContent: 'flex-start', padding: '0.65rem' }}>
-                <Brain size={16} color="var(--secondary)" /> Mental Well-Being
-              </button>
-
-              <button onClick={() => { setActiveTab('nutrition'); setShowMobileMore(false); }} className="btn btn-outline" style={{ justifyContent: 'flex-start', padding: '0.65rem' }}>
-                <Utensils size={16} color="var(--accent-mint)" /> AI Nutrition
-              </button>
-
-              <button onClick={() => { setActiveTab('meds'); setShowMobileMore(false); }} className="btn btn-outline" style={{ justifyContent: 'flex-start', padding: '0.65rem' }}>
-                <Pill size={16} color="var(--accent-amber)" /> Meds & Supplements
-              </button>
-
-              <button onClick={() => { setActiveTab('appointment'); setShowMobileMore(false); }} className="btn btn-outline" style={{ justifyContent: 'flex-start', padding: '0.65rem' }}>
-                <Stethoscope size={16} color="var(--accent-teal)" /> Appointment Prep
-              </button>
-
-              <button onClick={() => { setActiveTab('learn'); setShowMobileMore(false); }} className="btn btn-outline" style={{ justifyContent: 'flex-start', padding: '0.65rem' }}>
-                <BookOpen size={16} color="var(--primary)" /> Learn Hub
-              </button>
+            {/* Section 1: All App Views */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <span className="badge badge-primary" style={{ marginBottom: '0.6rem', fontSize: '0.68rem' }}>EXPLORE NUMA VIEWS</span>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+                {visibleNavTabs.map((tab) => {
+                  const IconComp = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTab(tab.id);
+                        setShowMobileMenu(false);
+                      }}
+                      style={{
+                        padding: '0.65rem 0.75rem',
+                        borderRadius: 'var(--radius-md)',
+                        background: isActive ? 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)' : 'var(--bg-input)',
+                        color: isActive ? '#FFF' : 'var(--text-main)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontSize: '0.8rem',
+                        fontWeight: isActive ? '800' : '600',
+                        border: '1px solid var(--border-color)',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                        <IconComp size={16} color={isActive ? '#FFF' : 'var(--primary)'} />
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tab.label}</span>
+                      </div>
+                      <ChevronRight size={14} opacity={0.6} />
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
+            {/* Section 2: Quick Tools & Settings */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
-              <button onClick={() => { onOpenDownloadApk(); setShowMobileMore(false); }} className="btn btn-secondary" style={{ width: '100%', fontSize: '0.85rem' }}>
-                <Smartphone size={16} /> 📱 Download Android App (APK)
+              <span className="badge badge-secondary" style={{ marginBottom: '0.2rem', fontSize: '0.68rem' }}>QUICK WELLNESS & PRIVACY TOOLS</span>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+                <button onClick={() => { onOpenBreathing(); setShowMobileMenu(false); }} className="btn btn-outline" style={{ fontSize: '0.78rem', justifyContent: 'flex-start', padding: '0.55rem 0.75rem' }}>
+                  <Heart size={15} color="var(--secondary)" /> 🫁 4-7-8 Calm
+                </button>
+
+                <button onClick={() => { onOpenMeditation(); setShowMobileMenu(false); }} className="btn btn-outline" style={{ fontSize: '0.78rem', justifyContent: 'flex-start', padding: '0.55rem 0.75rem' }}>
+                  <Sparkles size={15} color="var(--primary)" /> 🧘 Meditation
+                </button>
+              </div>
+
+              <button onClick={() => { onOpenDownloadApk(); setShowMobileMenu(false); }} className="btn btn-secondary" style={{ width: '100%', fontSize: '0.825rem' }}>
+                <Smartphone size={16} /> 📱 Install Android App (APK)
               </button>
 
-              <button onClick={() => { onOpenPrivacy(); setShowMobileMore(false); }} className="btn btn-outline" style={{ width: '100%', fontSize: '0.85rem' }}>
+              <button onClick={() => { onOpenPrivacy(); setShowMobileMenu(false); }} className="btn btn-outline" style={{ width: '100%', fontSize: '0.825rem' }}>
                 <Lock size={16} color="var(--primary)" /> 🔒 Privacy & Stealth Mode
               </button>
 
-              <button onClick={() => { onOpenHealthSummary(); setShowMobileMore(false); }} className="btn btn-outline" style={{ width: '100%', fontSize: '0.85rem' }}>
+              <button onClick={() => { onOpenHealthSummary(); setShowMobileMenu(false); }} className="btn btn-outline" style={{ width: '100%', fontSize: '0.825rem' }}>
                 <FileCheck size={16} color="var(--primary)" /> 📄 Health Summary Report
               </button>
 
-              <button onClick={() => { toggleTheme(); setShowMobileMore(false); }} className="btn btn-outline" style={{ width: '100%', fontSize: '0.85rem' }}>
-                {theme === 'light' ? <Moon size={16} /> : <Sun size={16} color="#FBBF24" />} Switch Theme ({theme === 'light' ? 'Dark' : 'Light'})
+              <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.4rem' }}>
+                <button onClick={() => { toggleTheme(); setShowMobileMenu(false); }} className="btn btn-outline" style={{ flex: 1, fontSize: '0.78rem' }}>
+                  {theme === 'light' ? <Moon size={15} /> : <Sun size={15} color="#FBBF24" />} Theme ({theme === 'light' ? 'Dark' : 'Light'})
+                </button>
+
+                <button onClick={() => { onOpenSettings(); setShowMobileMenu(false); }} className="btn btn-outline" style={{ flex: 1, fontSize: '0.78rem' }}>
+                  Account Settings
+                </button>
+              </div>
+
+              <button onClick={() => { onLogout(); setShowMobileMenu(false); }} className="btn btn-outline" style={{ width: '100%', fontSize: '0.8rem', color: 'var(--danger)', marginTop: '0.4rem', borderColor: 'var(--danger-light)' }}>
+                <LogOut size={15} /> Logout Session
               </button>
             </div>
+
           </div>
         </div>
       )}
