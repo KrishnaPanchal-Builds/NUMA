@@ -69,22 +69,19 @@ export default function Header({
           
           {/* Left Branding */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <div style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: 'var(--radius-md)',
-              background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#FFF',
-              fontWeight: '800',
-              fontSize: '1.15rem',
-              boxShadow: 'var(--shadow-glow)',
-              flexShrink: 0
-            }}>
-              N
-            </div>
+            <img
+              src="/numa-logo.png"
+              alt="NUMA Logo"
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '2px solid rgba(168, 85, 247, 0.4)',
+                boxShadow: 'var(--shadow-glow)',
+                flexShrink: 0
+              }}
+            />
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <h1 style={{ fontSize: '1.05rem', fontWeight: '800', lineHeight: 1.1 }}>NUMA</h1>
