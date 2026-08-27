@@ -27,7 +27,8 @@ import {
   loadMeds, saveMeds,
   loadMeals, saveMeals,
   loadHydration, saveHydration,
-  logoutUserSession
+  loadReminders, saveReminders,
+  logoutActiveUser
 } from './utils/numaStorage';
 
 // Views
@@ -92,6 +93,26 @@ export default function App() {
   const [medications, setMedications] = useState(() => loadMeds(userId, []));
   const [meals, setMeals] = useState(() => loadMeals(userId, []));
   const [hydration, setHydration] = useState(() => loadHydration(userId, { date: new Date().toISOString().split('T')[0], amountMl: 0, targetMl: 2500 }));
+  const [reminders, setReminders] = useState(() => loadReminders(userId, [
+    {
+      id: 'rem_1',
+      title: 'Supplement: Myo-Inositol (2000mg)',
+      message: 'Take with warm water after dinner for insulin sensitivity.',
+      time: '08:00 PM',
+      category: 'med',
+      read: false,
+      active: true
+    },
+    {
+      id: 'rem_2',
+      title: 'Daily Hydration Goal (2.5L)',
+      message: 'Log your evening water intake to reach your 2.5L target.',
+      time: '04:00 PM',
+      category: 'hydration',
+      read: false,
+      active: true
+    }
+  ]));
 
   // Static reference content
   const [patterns] = useState(OBSERVED_PATTERNS);
@@ -126,6 +147,7 @@ export default function App() {
   useEffect(() => { if (userId) saveMeds(userId, medications || []); }, [medications, userId]);
   useEffect(() => { if (userId) saveMeals(userId, meals || []); }, [meals, userId]);
   useEffect(() => { if (userId) saveHydration(userId, hydration); }, [hydration, userId]);
+  useEffect(() => { if (userId) saveReminders(userId, reminders || []); }, [reminders, userId]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
@@ -147,6 +169,7 @@ export default function App() {
     setMedications(loadMeds(userAcc.id, []));
     setMeals(loadMeals(userAcc.id, []));
     setHydration(loadHydration(userAcc.id, { date: new Date().toISOString().split('T')[0], amountMl: 0, targetMl: 2500 }));
+    setReminders(loadReminders(userAcc.id, []));
   };
 
   // Complete Registration & Save to Database
@@ -172,7 +195,7 @@ export default function App() {
 
   // Logout Handler (Preserves data permanently in database!)
   const handleLogout = () => {
-    logoutUserSession();
+    logoutActiveUser();
     setUserId(null);
     setProfile({ ...INITIAL_USER_PROFILE, isOnboarded: false });
     setCycles([]);
@@ -184,6 +207,7 @@ export default function App() {
     setMedications([]);
     setMeals([]);
     setHydration({ date: new Date().toISOString().split('T')[0], amountMl: 0, targetMl: 2500 });
+    setReminders([]);
   };
 
   // Log period from Google Calendar and compute cycle length
@@ -550,7 +574,8 @@ export default function App() {
           isOpen={showNotificationsDrawer}
           onClose={() => setShowNotificationsDrawer(false)}
           onNavigate={setActiveTab}
-          onOpenCheckIn={() => setShowQuickCheckIn(true)}
+          reminders={reminders || []}
+          onSaveReminders={setReminders}
         />
       </div>
     </ErrorBoundary>

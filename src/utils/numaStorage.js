@@ -59,94 +59,73 @@ export function saveAccountsRegistry(accounts) {
   }
 }
 
-// Authenticate Existing User by Email/Username & Password
-export function authenticateUser(loginInput, passwordInput) {
+// Helper: Register New User Account
+export function registerNewUserAccount({ name, email, password }) {
   const accounts = getAccountsRegistry();
-  const inputNorm = (loginInput || '').trim().toLowerCase();
-  const passNorm = (passwordInput || '').trim();
-
-  if (!inputNorm || !passNorm) {
-    return {
-      success: false,
-      message: 'Please enter both your email/username and password.'
-    };
-  }
-
-  // Flexible match by Email, Username prefix, or Full Name
-  const found = accounts.find((acc) => {
-    const accEmail = (acc.email || '').trim().toLowerCase();
-    const accName = (acc.name || '').trim().toLowerCase();
-    const accEmailPrefix = accEmail.split('@')[0];
-    const accPassword = (acc.password || '').trim();
-
-    const matchesIdentity = (
-      accEmail === inputNorm ||
-      accName === inputNorm ||
-      accEmailPrefix === inputNorm
-    );
-
-    const matchesPassword = (accPassword === passNorm);
-
-    return matchesIdentity && matchesPassword;
-  });
-
-  if (found) {
-    return { success: true, user: found };
-  } else {
-    return {
-      success: false,
-      message: 'Incorrect email/username or password. Please verify your credentials or use the 1-Tap Demo Sign In button below.'
-    };
-  }
-}
-
-// Register New User Account with Password
-export function registerNewUserAccount(name, email, password) {
-  const accounts = getAccountsRegistry();
-  const emailNorm = (email || '').trim().toLowerCase();
-
-  const existing = accounts.find((acc) => (acc.email || '').trim().toLowerCase() === emailNorm);
+  const cleanEmail = email.trim().toLowerCase();
+  
+  // Check if account already exists
+  const existing = accounts.find((a) => a.email.toLowerCase() === cleanEmail);
   if (existing) {
-    // Update existing credentials if re-registering
-    existing.name = name.trim();
-    existing.password = password.trim();
-    saveAccountsRegistry(accounts);
-    return existing;
+    return { success: false, error: 'An account with this email address already exists.' };
   }
 
   const newAccount = {
-    id: 'usr_' + Date.now(),
+    id: `usr_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
     name: name.trim(),
-    email: emailNorm,
+    email: cleanEmail,
     password: password.trim(),
     registeredAt: new Date().toISOString()
   };
 
-  accounts.push(newAccount);
-  saveAccountsRegistry(accounts);
+  const updatedAccounts = [...accounts, newAccount];
+  saveAccountsRegistry(updatedAccounts);
+  setActiveUserId(newAccount.id);
+  return { success: true, account: newAccount };
+}
 
-  return newAccount;
+// Helper: Authenticate Sign-in (Matches Email, Username, or Full Name Case-Insensitively)
+export function authenticateUser(loginInput, password) {
+  const accounts = getAccountsRegistry();
+  const cleanInput = loginInput.trim().toLowerCase();
+
+  const matchedAccount = accounts.find((a) => 
+    a.email.toLowerCase() === cleanInput || 
+    a.name.toLowerCase() === cleanInput ||
+    a.id.toLowerCase() === cleanInput
+  );
+
+  if (!matchedAccount) {
+    return { success: false, error: 'User account not found. Please check your email or click Register.' };
+  }
+
+  if (matchedAccount.password !== password.trim()) {
+    return { success: false, error: 'Incorrect password. Please try again.' };
+  }
+
+  setActiveUserId(matchedAccount.id);
+  return { success: true, account: matchedAccount };
 }
 
 // Active Session Management
 export function getActiveUserId() {
-  return localStorage.getItem(ACTIVE_USER_ID_KEY) || null;
+  const activeId = localStorage.getItem(ACTIVE_USER_ID_KEY);
+  if (activeId) return activeId;
+  return 'usr_demo_krishna'; // Default fallback
 }
 
 export function setActiveUserId(userId) {
-  if (userId) {
-    localStorage.setItem(ACTIVE_USER_ID_KEY, userId);
-  } else {
-    localStorage.removeItem(ACTIVE_USER_ID_KEY);
-  }
+  localStorage.setItem(ACTIVE_USER_ID_KEY, userId);
 }
 
-export function logoutUserSession() {
+export function logoutActiveUser() {
   localStorage.removeItem(ACTIVE_USER_ID_KEY);
 }
 
-// User-Scoped Storage Keys Generator
-const getKey = (userId, domain) => `numa_user_${userId || 'guest'}_${domain}`;
+// Helper for Namespaced Keys: numa_user_<id>_<domain>
+function getKey(userId, domain) {
+  return `numa_user_${userId}_${domain}`;
+}
 
 // Profile Storage
 export function loadProfile(userId, fallback) {
@@ -289,10 +268,10 @@ export function loadDocuments(userId, fallback = []) {
   }
 }
 
-export function saveDocuments(userId, documentsData) {
+export function saveDocuments(userId, docsData) {
   if (!userId) return;
   try {
-    localStorage.setItem(getKey(userId, 'documents'), JSON.stringify(Array.isArray(documentsData) ? documentsData : []));
+    localStorage.setItem(getKey(userId, 'documents'), JSON.stringify(Array.isArray(docsData) ? docsData : []));
   } catch (e) {
     console.error('Failed saving documents:', e);
   }
@@ -359,5 +338,27 @@ export function saveHydration(userId, hydrationData) {
     localStorage.setItem(getKey(userId, 'hydration'), JSON.stringify(hydrationData));
   } catch (e) {
     console.error('Failed saving hydration:', e);
+  }
+}
+
+// User Custom Reminders Storage (Persistent per User ID)
+export function loadReminders(userId, fallback = []) {
+  if (!userId) return Array.isArray(fallback) ? fallback : [];
+  try {
+    const data = localStorage.getItem(getKey(userId, 'reminders'));
+    if (!data) return Array.isArray(fallback) ? fallback : [];
+    const parsed = JSON.parse(data);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return Array.isArray(fallback) ? fallback : [];
+  }
+}
+
+export function saveReminders(userId, remindersData) {
+  if (!userId) return;
+  try {
+    localStorage.setItem(getKey(userId, 'reminders'), JSON.stringify(Array.isArray(remindersData) ? remindersData : []));
+  } catch (e) {
+    console.error('Failed saving reminders:', e);
   }
 }
