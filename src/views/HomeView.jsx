@@ -7,6 +7,9 @@ export default function HomeView({
   timeline,
   patterns,
   appointments,
+  hydration = { amountMl: 0, targetMl: 2500 },
+  onAddWater,
+  onOpenHydration,
   onOpenCheckIn,
   onNavigate,
   onOpenMealLog,
@@ -63,6 +66,10 @@ export default function HomeView({
   const cycleCalc = getCycleCalculation();
   const safeTimeline = Array.isArray(timeline) ? timeline : [];
   const todayTimeline = safeTimeline.filter((t) => !t.date || t.date === new Date().toISOString().split('T')[0]);
+
+  const currentWater = hydration.amountMl || 0;
+  const targetWater = hydration.targetMl || 2500;
+  const waterPercent = Math.min(100, Math.round((currentWater / targetWater) * 100));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.65rem' }}>
@@ -123,6 +130,50 @@ export default function HomeView({
             <div style={{ width: `${((cycleCalc.currentDay) / cycleCalc.targetCycleDays) * 100}%`, background: 'linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%)', borderRadius: 'var(--radius-full)' }} title="Elapsed Days" />
             <div style={{ flex: 1, background: 'var(--accent-mint-light)', borderRadius: 'var(--radius-full)' }} title="Remaining Days" />
           </div>
+        </div>
+      </div>
+
+      {/* COMPULSORY HYDRATION TRACKER WIDGET */}
+      <div className="numa-card glass-card" style={{
+        padding: '1.25rem',
+        borderRadius: 'var(--radius-lg)',
+        background: 'linear-gradient(135deg, rgba(14,165,233,0.08) 0%, rgba(59,130,246,0.08) 100%)',
+        border: '1px solid rgba(14,165,233,0.3)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '1rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: 'var(--radius-md)', background: '#0EA5E9', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 15px rgba(14,165,233,0.3)' }}>
+            <Droplets size={22} />
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span className="badge badge-teal" style={{ fontSize: '0.65rem' }}>COMPULSORY HYDRATION TARGET</span>
+              <strong style={{ fontSize: '1.05rem', color: '#0EA5E9' }}>{currentWater} / {targetWater} ml</strong>
+            </div>
+            <p style={{ fontSize: '0.775rem', color: 'var(--text-muted)', margin: 0 }}>
+              {waterPercent}% of daily goal logged ({targetWater - currentWater > 0 ? `${targetWater - currentWater} ml left` : 'Goal Reached! 🎉'})
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          {onAddWater && (
+            <>
+              <button onClick={() => onAddWater(250)} className="btn btn-outline" style={{ fontSize: '0.78rem', padding: '0.35rem 0.7rem', borderColor: '#0EA5E9', color: '#0EA5E9' }}>
+                + 250ml
+              </button>
+              <button onClick={() => onAddWater(500)} className="btn btn-outline" style={{ fontSize: '0.78rem', padding: '0.35rem 0.7rem', borderColor: '#0EA5E9', color: '#0EA5E9' }}>
+                + 500ml
+              </button>
+            </>
+          )}
+          <button onClick={onOpenHydration} className="btn btn-primary" style={{ fontSize: '0.78rem', padding: '0.35rem 0.75rem', background: '#0EA5E9' }}>
+            💧 Manage Water Target
+          </button>
         </div>
       </div>
 

@@ -12,6 +12,7 @@ import SettingsModal from './components/SettingsModal';
 import DownloadApkModal from './components/DownloadApkModal';
 import NotificationsDrawer from './components/NotificationsDrawer';
 import OnboardingModal from './components/OnboardingModal';
+import HydrationModal from './components/HydrationModal';
 
 // Multi-User Database Storage Persistence Adapter
 import {
@@ -74,6 +75,7 @@ export default function App() {
   const [showDownloadApkModal, setShowDownloadApkModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
+  const [showHydrationModal, setShowHydrationModal] = useState(false);
 
   // Privacy & Stealth Settings
   const [isPrivateMode, setIsPrivateMode] = useState(() => localStorage.getItem('numa_private_mode') === 'true');
@@ -315,6 +317,24 @@ export default function App() {
     ]);
   };
 
+  const handleAddWaterQuick = (mlToAdd) => {
+    const currentAmount = hydration.amountMl || 0;
+    const targetGoal = hydration.targetMl || profile.waterTargetMl || 2500;
+    const newEntry = {
+      id: `h_log_${Date.now()}`,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      amountMl: mlToAdd
+    };
+
+    setHydration({
+      ...hydration,
+      date: new Date().toISOString().split('T')[0],
+      amountMl: currentAmount + mlToAdd,
+      targetMl: targetGoal,
+      logs: [newEntry, ...(Array.isArray(hydration.logs) ? hydration.logs : [])]
+    });
+  };
+
   const isUserAuthenticated = Boolean(userId && profile.isOnboarded);
 
   return (
@@ -355,6 +375,9 @@ export default function App() {
                 timeline={timeline || []}
                 patterns={patterns}
                 appointments={appointments}
+                hydration={hydration}
+                onAddWater={handleAddWaterQuick}
+                onOpenHydration={() => setShowHydrationModal(true)}
                 onOpenCheckIn={() => setShowQuickCheckIn(true)}
                 onNavigate={setActiveTab}
                 onOpenMealLog={() => setShowMealModal(true)}
@@ -576,6 +599,15 @@ export default function App() {
           onNavigate={setActiveTab}
           reminders={reminders || []}
           onSaveReminders={setReminders}
+        />
+
+        <HydrationModal
+          isOpen={showHydrationModal}
+          onClose={() => setShowHydrationModal(false)}
+          hydration={hydration}
+          onUpdateHydration={setHydration}
+          profile={profile}
+          onUpdateProfile={setProfile}
         />
       </div>
     </ErrorBoundary>
