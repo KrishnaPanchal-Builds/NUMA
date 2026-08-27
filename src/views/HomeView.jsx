@@ -78,7 +78,7 @@ export default function HomeView({
       <div className="numa-card glass-card" style={{
         padding: '2rem',
         borderRadius: 'var(--radius-xl)',
-        background: 'linear-gradient(135deg, rgba(255,255,255,0.92) 0%, rgba(243,232,255,0.85) 100%)',
+        background: 'var(--bg-glass)',
         border: '1px solid rgba(168, 85, 247, 0.25)',
         boxShadow: 'var(--shadow-lg)'
       }}>
