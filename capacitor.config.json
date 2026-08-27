@@ -1,0 +1,5 @@
+{
+  "appId": "com.numa.health.app",
+  "appName": "NUMA",
+  "webDir": "dist"
+}
