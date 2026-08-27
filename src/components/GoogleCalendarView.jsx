@@ -37,7 +37,30 @@ export default function GoogleCalendarView({ events, cycles, onAddEvent, onUpdat
     '06:00 PM', '07:00 PM', '08:00 PM', '09:00 PM', '10:00 PM', '11:00 PM'
   ];
 
-  // Navigate 3 Months at a time
+  // Single Month Stepping for Mobile Controls
+  const handlePrevMonth = () => {
+    let newMonth = currentMonthIndex - 1;
+    let newYear = currentYear;
+    if (newMonth < 0) {
+      newMonth = 11;
+      newYear -= 1;
+    }
+    setCurrentMonthIndex(newMonth);
+    setCurrentYear(newYear);
+  };
+
+  const handleNextMonth = () => {
+    let newMonth = currentMonthIndex + 1;
+    let newYear = currentYear;
+    if (newMonth > 11) {
+      newMonth = 0;
+      newYear += 1;
+    }
+    setCurrentMonthIndex(newMonth);
+    setCurrentYear(newYear);
+  };
+
+  // 3-Month Stepping for Desktop Controls
   const handlePrev3Months = () => {
     let newMonth = currentMonthIndex - 3;
     let newYear = currentYear;
@@ -82,8 +105,10 @@ export default function GoogleCalendarView({ events, cycles, onAddEvent, onUpdat
     return { year: yr, monthIndex: monthIdx, monthName: monthNames[monthIdx], daysCount, startPadding };
   };
 
-  // 3 Consecutive Months
+  // 3 Consecutive Months for Desktop
   const threeMonths = [getMonthMetadata(-2), getMonthMetadata(-1), getMonthMetadata(0)];
+  // Single Focused Month for Mobile
+  const currentMobileMonth = getMonthMetadata(0);
 
   const getEventsForDate = (dateStr) => {
     const safeEvents = Array.isArray(events) ? events : [];
@@ -130,7 +155,7 @@ export default function GoogleCalendarView({ events, cycles, onAddEvent, onUpdat
         painLevel: parseInt(periodCramps),
         notes: periodNotes || `${periodType} recorded`
       });
-    } else {
+    } else if (onAddEvent) {
       onAddEvent({
         id: 'p_log_' + Date.now(),
         date: selectedDate,
@@ -201,7 +226,7 @@ export default function GoogleCalendarView({ events, cycles, onAddEvent, onUpdat
         painLevel: parseInt(eventSeverity),
         notes: eventNotes
       });
-    } else {
+    } else if (onAddEvent) {
       onAddEvent({
         id: 'e_' + Date.now(),
         date: selectedDate,
@@ -239,25 +264,99 @@ export default function GoogleCalendarView({ events, cycles, onAddEvent, onUpdat
     return normalize(eventTime) === normalize(hourSlot);
   };
 
+  // Reusable Single Month Grid Renderer
+  const renderSingleMonthGrid = (m) => (
+    <div key={m.monthName + '_' + m.year} className="numa-card" style={{ padding: '1rem' }}>
+      
+      <div style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h4 style={{ fontSize: '1.05rem', fontWeight: '800' }}>
+          {m.monthName} {m.year}
+        </h4>
+        <span style={{ fontSize: '0.725rem', color: 'var(--primary)', fontWeight: '700' }}>Tap day to select</span>
+      </div>
+
+      {/* Day Headers */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.2rem', textAlign: 'center', fontWeight: '700', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+      </div>
+
+      {/* Day Cells Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.25rem' }}>
+        {Array.from({ length: m.startPadding }).map((_, i) => (
+          <div key={'blank_' + i} style={{ height: '42px', opacity: 0.2 }} />
+        ))}
+
+        {Array.from({ length: m.daysCount }, (_, i) => i + 1).map((dayNum) => {
+          const dayStr = dayNum < 10 ? '0' + dayNum : '' + dayNum;
+          const monthStr = (m.monthIndex + 1) < 10 ? '0' + (m.monthIndex + 1) : '' + (m.monthIndex + 1);
+          const dateStr = `${m.year}-${monthStr}-${dayStr}`;
+          
+          const isSelected = selectedDate === dateStr;
+          const dayEvents = getEventsForDate(dateStr);
+          const hasPeriodLog = dayEvents.some((e) => e.symptom?.includes('Period'));
+
+          return (
+            <button
+              key={dayNum}
+              onClick={() => setSelectedDate(dateStr)}
+              style={{
+                height: '42px',
+                borderRadius: 'var(--radius-sm)',
+                background: isSelected 
+                  ? 'var(--primary)' 
+                  : hasPeriodLog 
+                  ? 'var(--secondary-light)' 
+                  : 'var(--bg-input)',
+                color: isSelected ? '#FFF' : hasPeriodLog ? 'var(--secondary)' : 'var(--text-main)',
+                border: isSelected ? '2px solid var(--primary)' : '1px solid var(--border-color)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0.25rem 0.1rem',
+                fontWeight: isSelected || hasPeriodLog ? '800' : '600',
+                fontSize: '0.75rem',
+                position: 'relative'
+              }}
+              title={`Click to view 24-hr log for ${dateStr}`}
+            >
+              <span>{dayNum}</span>
+              <div style={{ display: 'flex', gap: '2px' }}>
+                {hasPeriodLog && <span style={{ fontSize: '0.6rem' }}>🩸</span>}
+                {dayEvents.slice(0, 2).map((_, evIdx) => (
+                  <div key={evIdx} style={{ width: '3px', height: '3px', borderRadius: 'var(--radius-full)', background: isSelected ? '#FFF' : 'var(--primary)' }} />
+                ))}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+    </div>
+  );
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       
-      {/* Calendar Header Bar with 3-Month Navigation */}
+      {/* Calendar Header Bar with Adaptive Navigation */}
       <div className="numa-card glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ width: '40px', height: '40px', borderRadius: 'var(--radius-md)', background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <CalendarIcon size={22} />
           </div>
           <div>
-            <h2 style={{ fontSize: '1.3rem', fontWeight: '800' }}>3-Month Calendar View</h2>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: '800' }}>
+              <span className="hide-mobile">3-Month Calendar View</span>
+              <span className="hide-desktop">Calendar Tracker</span>
+            </h2>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               Selected Date: <strong>{selectedDate}</strong> {hasPeriodMarkOnSelectedDate ? '(🔴 Period Marked)' : ''}
             </p>
           </div>
         </div>
 
-        {/* Multi-Month Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        {/* Desktop Multi-Month Navigation Controls */}
+        <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <button onClick={handleJumpToday} className="btn btn-outline" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
             Today
           </button>
@@ -272,85 +371,39 @@ export default function GoogleCalendarView({ events, cycles, onAddEvent, onUpdat
           </button>
         </div>
 
+        {/* Mobile Single-Month Navigation Controls */}
+        <div className="hide-desktop" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <button onClick={handleJumpToday} className="btn btn-outline" style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}>
+            Today
+          </button>
+          <button onClick={handlePrevMonth} className="btn btn-outline btn-icon" style={{ width: '32px', height: '32px' }} title="Previous Month">
+            <ChevronLeft size={16} />
+          </button>
+          <span style={{ fontWeight: '800', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
+            {currentMobileMonth.monthName} {currentMobileMonth.year}
+          </span>
+          <button onClick={handleNextMonth} className="btn btn-outline btn-icon" style={{ width: '32px', height: '32px' }} title="Next Month">
+            <ChevronRight size={16} />
+          </button>
+        </div>
+
         {/* Dedicated Explicit Period Logger Button */}
         <button onClick={() => setShowPeriodModal(true)} className="btn btn-primary" style={{ padding: '0.55rem 1rem', fontSize: '0.85rem' }}>
-          <Droplets size={16} /> + Log Period / Monthly Track
+          <Droplets size={16} /> + Log Period
         </button>
       </div>
 
-      {/* MAIN VIEW: 3-MONTH GRID & 24-HR SCHEDULE PANEL */}
+      {/* MAIN VIEW: ADAPTIVE CALENDAR GRID & 24-HR SCHEDULE PANEL */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         
-        {/* 3-MONTH SUPER-GRID */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-          {threeMonths.map((m) => (
-            <div key={m.monthName + '_' + m.year} className="numa-card" style={{ padding: '1rem' }}>
-              
-              <div style={{ marginBottom: '0.75rem' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: '800' }}>
-                  {m.monthName} {m.year}
-                </h4>
-              </div>
+        {/* DESKTOP VIEW: 3-MONTH SIDE-BY-SIDE GRID */}
+        <div className="hide-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+          {threeMonths.map((m) => renderSingleMonthGrid(m))}
+        </div>
 
-              {/* Day Headers */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.2rem', textAlign: 'center', fontWeight: '700', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
-                <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
-              </div>
-
-              {/* Day Cells Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.25rem' }}>
-                {Array.from({ length: m.startPadding }).map((_, i) => (
-                  <div key={'blank_' + i} style={{ height: '42px', opacity: 0.2 }} />
-                ))}
-
-                {Array.from({ length: m.daysCount }, (_, i) => i + 1).map((dayNum) => {
-                  const dayStr = dayNum < 10 ? '0' + dayNum : '' + dayNum;
-                  const monthStr = (m.monthIndex + 1) < 10 ? '0' + (m.monthIndex + 1) : '' + (m.monthIndex + 1);
-                  const dateStr = `${m.year}-${monthStr}-${dayStr}`;
-                  
-                  const isSelected = selectedDate === dateStr;
-                  const dayEvents = getEventsForDate(dateStr);
-                  const hasPeriodLog = dayEvents.some((e) => e.symptom?.includes('Period'));
-
-                  return (
-                    <button
-                      key={dayNum}
-                      onClick={() => setSelectedDate(dateStr)} // RETAINS saved 24h timeline
-                      style={{
-                        height: '42px',
-                        borderRadius: 'var(--radius-sm)',
-                        background: isSelected 
-                          ? 'var(--primary)' 
-                          : hasPeriodLog 
-                          ? 'var(--secondary-light)' 
-                          : 'var(--bg-input)',
-                        color: isSelected ? '#FFF' : hasPeriodLog ? 'var(--secondary)' : 'var(--text-main)',
-                        border: isSelected ? '2px solid var(--primary)' : '1px solid var(--border-color)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '0.25rem 0.1rem',
-                        fontWeight: isSelected || hasPeriodLog ? '800' : '600',
-                        fontSize: '0.75rem',
-                        position: 'relative'
-                      }}
-                      title={`Click to view 24-hr log for ${dateStr}`}
-                    >
-                      <span>{dayNum}</span>
-                      <div style={{ display: 'flex', gap: '2px' }}>
-                        {hasPeriodLog && <span style={{ fontSize: '0.6rem' }}>🩸</span>}
-                        {dayEvents.slice(0, 2).map((_, evIdx) => (
-                          <div key={evIdx} style={{ width: '3px', height: '3px', borderRadius: 'var(--radius-full)', background: isSelected ? '#FFF' : 'var(--primary)' }} />
-                        ))}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-            </div>
-          ))}
+        {/* MOBILE VIEW: SINGLE CURRENT MONTH FOCUSED GRID */}
+        <div className="hide-desktop">
+          {renderSingleMonthGrid(currentMobileMonth)}
         </div>
 
         {/* FULL 24-HOUR HOURLY SCHEDULE & EDITABLE SLOTS FOR SELECTED DATE */}
@@ -489,7 +542,7 @@ export default function GoogleCalendarView({ events, cycles, onAddEvent, onUpdat
                     <button
                       type="button"
                       key={type}
-                      onClick={() => setPeriodType(periodType === type ? '' : type)} // DESELECT ON RE-CLICK
+                      onClick={() => setPeriodType(periodType === type ? '' : type)}
                       className={`btn ${periodType === type ? 'btn-primary' : 'btn-outline'}`}
                       style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}
                     >
